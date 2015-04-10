@@ -9,7 +9,6 @@
   1.0.0
     
   ステータス表示や、戦闘の計算式を変えるようなプラグインとの併用は上手くいかない可能性あり  
-  地形表示ウィンドウはもっと小さく出来そうな気がするけどやり方不明のため保留
   
   作成者:
   うなうなぎ
@@ -121,4 +120,14 @@ MapParts.Terrain._drawContent = function(x, y, terrain) {
 			y += ItemInfoRenderer.getSpaceY();
 			this._drawKeyword(x, y, text, terrain.getMdf());
 		}	
+};
+
+//地形表示ウィンドウを、回避率を削る分だけコンパクトにする
+MapParts.Terrain._getWindowHeight = function() {
+		var xCursor = this.getMapPartsX();
+		var yCursor = this.getMapPartsY();
+		var terrain = PosChecker.getTerrainFromPos(xCursor, yCursor);
+		
+		//_getPartsCountの値より１行分減らす
+		return (this._getPartsCount(terrain) - 1 ) * ItemInfoRenderer.getSpaceY();
 };
