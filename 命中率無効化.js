@@ -36,11 +36,11 @@ var StatusRenderer = {
 		
 		for (i = 0; i < 3; i++) {
 			//必殺無効化時は必殺表示をスキップ
-			if (critical_capacity_disabled && buf[i] == 'critical_capacity'){
+			if ((typeof critical_capacity_disabled !== "undefined") && buf[i] == 'critical_capacity'){
 				continue;
 			}
 			//命中無効化時は命中表示をスキップ
-			if (hit_capacity_disabled && buf[i] == 'hit_capacity'){
+			if ((typeof hit_capacity_disabled !== "undefined") && buf[i] == 'hit_capacity'){
 				continue;
 			}			
 			
@@ -103,8 +103,8 @@ MapParts.Terrain._drawContent = function(x, y, terrain) {
 		x += 2;
 		TextRenderer.drawKeywordText(x, y, terrain.getName(), length, color, font);
 		
-		//回避率の非表示
-		if(!hit_capacity_disabled){
+		//命中率を無視する時は回避率も非表示
+		if(typeof hit_capacity_disabled === "undefined"){
 			y += ItemInfoRenderer.getSpaceY();
 			this._drawKeyword(x, y, root.queryCommand('avoid_capacity'), terrain.getAvoid());
 		}

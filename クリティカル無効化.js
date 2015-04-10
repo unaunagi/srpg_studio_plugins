@@ -68,45 +68,41 @@ var StatusRenderer = {
 
 //武器詳細の必殺と射程
 //射程だけ残して必殺を消す
-ItemSentence.CriticalAndRange = defineObject(BaseItemSentence,
-{
-	drawItemSentence: function(x, y, item) {
-		var text;
+// ステータスの描画
+// 命中無効と必殺無効と両対応
+var StatusRenderer = {
+	drawAttackStatus: function(x, y, arr, color, font, space) {
+		var i, text;
+		var length = this._getTextLength();
+		var numberSpace = DefineControl.getNumberSpace();
+		var buf = ['attack_capacity', 'hit_capacity', 'critical_capacity'];
 		
-		if(false){
-			text = root.queryCommand('critical_capacity');
-			ItemInfoRenderer.drawKeyword(x, y, text);
-			x += ItemInfoRenderer.getSpaceX();
-			NumberRenderer.drawRightNumber(x, y, item.getCritical());
+		for (i = 0; i < 3; i++) {
+			//必殺無効化時は必殺表示をスキップ
+			if ((typeof critical_capacity_disabled !== "undefined") && buf[i] == 'critical_capacity'){
+				continue;
+			}
+			//命中無効化時は命中表示をスキップ
+			if ((typeof hit_capacity_disabled !== "undefined") && buf[i] == 'hit_capacity'){
+				continue;
+			}			
 			
-			x += 42;
-		}
-		
-		text = root.queryCommand('range_capacity');
-		ItemInfoRenderer.drawKeyword(x, y, text);
-		x += ItemInfoRenderer.getSpaceX();
-		this._drawRange(x, y, item);
+			text = root.queryCommand(buf[i]);
+			TextRenderer.drawKeywordText(x, y, text, length, color, font);
+			x += 28 + numberSpace;
+			
+			if (arr[i] >= 0) {
+				NumberRenderer.drawNumber(x, y, arr[i]);
+			}
+			else {
+				TextRenderer.drawSignText(x - 5, y, StringTable.SignWord_Limitless);
+			}
+			
+			x += space;
+		}	
 	},
 	
-	getItemSentenceCount: function(item) {
-		return 1;
-	},
-	
-	_drawRange: function(x, y, item) {
-		var startRange = item.getStartRange();
-		var endRange = item.getEndRange();
-		var textui = root.queryTextUI('default_window');
-		var color = textui.getColor();
-		var font = textui.getFont();
-		
-		if (startRange === endRange) {
-			NumberRenderer.drawRightNumber(x, y, startRange);
-		}
-		else {
-			NumberRenderer.drawRightNumber(x, y, startRange);
-			TextRenderer.drawKeywordText(x + 17, y, StringTable.SignWord_WaveDash, -1, color, font);
-			NumberRenderer.drawRightNumber(x + 40, y, endRange);
-		}
+	_getTextLength: function() {
+		return 35;
 	}
-}
-);
+};
