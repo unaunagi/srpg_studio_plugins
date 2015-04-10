@@ -1,6 +1,6 @@
 ﻿/*--------------------------------------------------------------------------
   
-  クリティカル（必殺）の仕様を全て無効化して、表示欄からも消します
+  命中と回避の仕様を無効化して、表示欄からも消します
     
   使用方法:
   pluginフォルダに入れるだけ
@@ -8,7 +8,8 @@
   対応バージョン
   1.0.0
     
-  ステータス表示や、戦闘の計算式を変えるようなプラグインとの併用は上手くいかない可能性あり    
+  ステータス表示や、戦闘の計算式を変えるようなプラグインとの併用は上手くいかない可能性あり  
+  地形表示ウィンドウはもっと小さく出来そうな気がするけどやり方不明のため保留
   
   作成者:
   うなうなぎ
@@ -17,15 +18,13 @@
 --------------------------------------------------------------------------*/
 
 //必殺率と命中率の無効を併用するため、プラグインの使用をフラグ化しておく
-var critical_capacity_disabled = true;
+var hit_capacity_disabled = true;
 
-//クリティカル率の計算
-//条件を全て無視して0％に固定する
-var CriticalCalculator = {
-	calculateCritical: function(active, passive, weapon) {
-		return 0;
+var HitCalculator = {
+	calculateHit: function(active, passive, weapon) {		
+		return 100;
 	}
-};
+}
 
 // ステータスの描画
 // 命中無効と必殺無効と両対応
@@ -68,45 +67,58 @@ var StatusRenderer = {
 
 //武器詳細の必殺と射程
 //射程だけ残して必殺を消す
-ItemSentence.CriticalAndRange = defineObject(BaseItemSentence,
+ItemSentence.AttackAndHit = defineObject(BaseItemSentence,
 {
 	drawItemSentence: function(x, y, item) {
 		var text;
 		
-		if(false){
-			text = root.queryCommand('critical_capacity');
-			ItemInfoRenderer.drawKeyword(x, y, text);
-			x += ItemInfoRenderer.getSpaceX();
-			NumberRenderer.drawRightNumber(x, y, item.getCritical());
-			
-			x += 42;
-		}
-		
-		text = root.queryCommand('range_capacity');
+		text = root.queryCommand('attack_capacity');
 		ItemInfoRenderer.drawKeyword(x, y, text);
 		x += ItemInfoRenderer.getSpaceX();
-		this._drawRange(x, y, item);
+		NumberRenderer.drawRightNumber(x, y, item.getPow());
+		
+		x += 42;
+	
+		if(false){
+			text = root.queryCommand('hit_capacity');
+			ItemInfoRenderer.drawKeyword(x, y, text);
+			x += ItemInfoRenderer.getSpaceX();
+			NumberRenderer.drawRightNumber(x, y, item.getHit());
+		}
 	},
 	
 	getItemSentenceCount: function(item) {
 		return 1;
-	},
-	
-	_drawRange: function(x, y, item) {
-		var startRange = item.getStartRange();
-		var endRange = item.getEndRange();
-		var textui = root.queryTextUI('default_window');
-		var color = textui.getColor();
-		var font = textui.getFont();
-		
-		if (startRange === endRange) {
-			NumberRenderer.drawRightNumber(x, y, startRange);
-		}
-		else {
-			NumberRenderer.drawRightNumber(x, y, startRange);
-			TextRenderer.drawKeywordText(x + 17, y, StringTable.SignWord_WaveDash, -1, color, font);
-			NumberRenderer.drawRightNumber(x + 40, y, endRange);
-		}
 	}
-}
-);
+});
+
+//地形情報ウィンドウ
+//通常は回避0でも表示されてしまうので隠しておく
+MapParts.Terrain._drawContent = function(x, y, terrain) {
+		var text;
+		var textui = this._getWindowTextUI();
+		var font = textui.getFont();
+		var color = textui.getColor();
+		var length = this._getTextLength();
+		
+		x += 2;
+		TextRenderer.drawKeywordText(x, y, terrain.getName(), length, color, font);
+		
+		//回避率の非表示
+		if(!hit_capacity_disabled){
+			y += ItemInfoRenderer.getSpaceY();
+			this._drawKeyword(x, y, root.queryCommand('avoid_capacity'), terrain.getAvoid());
+		}
+		
+		if (terrain.getDef() !== 0) {
+			text = ParamGroup.getParameterName(ParamType.DEF);
+			y += ItemInfoRenderer.getSpaceY();
+			this._drawKeyword(x, y, text, terrain.getDef());
+		}
+		
+		if (terrain.getMdf() !== 0) {
+			text = ParamGroup.getParameterName(ParamType.MDF);
+			y += ItemInfoRenderer.getSpaceY();
+			this._drawKeyword(x, y, text, terrain.getMdf());
+		}	
+};
