@@ -1,7 +1,7 @@
 # srpg_studio_plugins
 SRPG STUDIO用のプラグインファイル置き場
 
-SRPG STUDIO(http://srpgstudio.com/)用のプラグインファイルです。
+[SRPG STUDIO](http://srpgstudio.com/)用のプラグインファイルです。
 
 ファイルは機能毎に分かれているので、必要なファイルだけをpluginフォルダに入れれば動くようになります。
 Project1\Plugin\Unaunagi\(必要なファイル).js
